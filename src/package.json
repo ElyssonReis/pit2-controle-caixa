@@ -1,0 +1,14 @@
+{
+  "name": "pit2-controle-caixa",
+  "version": "1.0.0",
+  "description": "Sistema de Controle de Fechamento de Caixa e Turnos - PIT II",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
+  }
+}
