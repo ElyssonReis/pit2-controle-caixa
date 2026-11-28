@@ -1,7 +1,6 @@
 const CaixaModel = require('../models/caixaModel');
 
 class CaixaController {
-    // Tela inicial: lista todos os turnos
     static index(req, res) {
         const erro = req.query.erro || null;
         const sucesso = req.query.sucesso || null;
@@ -14,7 +13,6 @@ class CaixaController {
         });
     }
 
-    // Cria um novo turno
     static criarTurno(req, res) {
         const { operador, data_turno, valor_inicial } = req.body;
 
@@ -30,7 +28,16 @@ class CaixaController {
         });
     }
 
-    // Detalhes do turno e cálculo de saldo esperado
+    static removerTurno(req, res) {
+        const { id } = req.params;
+        CaixaModel.excluirTurno(id, (err) => {
+            if (err) {
+                return res.redirect('/?erro=Erro ao excluir turno.');
+            }
+            res.redirect('/?sucesso=Turno removido do histórico!');
+        });
+    }
+
     static detalhesTurno(req, res) {
         const { id } = req.params;
         const erro = req.query.erro || null;
@@ -69,7 +76,6 @@ class CaixaController {
         });
     }
 
-    // Registra entrada ou saída
     static registrarMovimentacao(req, res) {
         const { id } = req.params;
         const { tipo, descricao, valor } = req.body;
@@ -86,7 +92,23 @@ class CaixaController {
         });
     }
 
-    // Encerra o turno e calcula sobra ou quebra
+    static removerMovimentacao(req, res) {
+        const { id, movId } = req.params;
+
+        CaixaModel.buscarTurnoPorId(id, (err, turno) => {
+            if (err || !turno || turno.status !== 'ABERTO') {
+                return res.redirect(`/turno/${id}?erro=Não é possível excluir lançamentos de um turno fechado.`);
+            }
+
+            CaixaModel.excluirMovimentacao(movId, id, (err) => {
+                if (err) {
+                    return res.redirect(`/turno/${id}?erro=Erro ao excluir lançamento.`);
+                }
+                res.redirect(`/turno/${id}?sucesso=Lançamento removido com sucesso!`);
+            });
+        });
+    }
+
     static encerrarTurno(req, res) {
         const { id } = req.params;
         const { valor_fechamento, saldo_esperado } = req.body;

@@ -1,6 +1,6 @@
 {
   "name": "pit2-controle-caixa",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Sistema de Controle de Fechamento de Caixa e Turnos - PIT II",
   "main": "app.js",
   "scripts": {

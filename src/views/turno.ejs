@@ -19,6 +19,9 @@
         input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         button { background: #1e3a8a; color: #fff; border: none; padding: 9px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-fechar { background: #b91c1c; }
+        .btn-fechar:hover { background: #991b1b; }
+        .btn-excluir-mov { background: #dc2626; padding: 5px 10px; font-size: 12px; }
+        .btn-excluir-mov:hover { background: #b91c1c; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
         th, td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; }
         .entrada { color: #166534; font-weight: bold; }
@@ -65,17 +68,25 @@
                     <th>Tipo</th>
                     <th>Descrição</th>
                     <th>Valor</th>
+                    <% if (turno.status === 'ABERTO') { %><th>Ação</th><% } %>
                 </tr>
             </thead>
             <tbody>
                 <% if (movimentacoes.length === 0) { %>
-                    <tr><td colspan="3">Nenhuma movimentação lançada neste turno.</td></tr>
+                    <tr><td colspan="<%= turno.status === 'ABERTO' ? 4 : 3 %>">Nenhuma movimentação lançada neste turno.</td></tr>
                 <% } %>
                 <% movimentacoes.forEach(m => { %>
                     <tr>
                         <td class="<%= m.tipo === 'ENTRADA' ? 'entrada' : 'saida' %>"><%= m.tipo %></td>
                         <td><%= m.descricao %></td>
                         <td>R$ <%= m.valor.toFixed(2) %></td>
+                        <% if (turno.status === 'ABERTO') { %>
+                            <td>
+                                <form action="/turno/<%= turno.id %>/movimentacao/<%= m.id %>/excluir" method="POST" style="margin:0;" onsubmit="return confirm('Excluir este lançamento?');">
+                                    <button type="submit" class="btn-excluir-mov">Excluir</button>
+                                </form>
+                            </td>
+                        <% } %>
                     </tr>
                 <% }) %>
             </tbody>
@@ -84,7 +95,7 @@
         <div class="box-fechamento">
             <% if (turno.status === 'ABERTO') { %>
                 <h3>Encerrar e Conferir Caixa</h3>
-                <form action="/turno/<%= turno.id %>/fechar" method="POST" style="display:flex; gap:10px; flex-wrap:wrap;">
+                <form action="/turno/<%= turno.id %>/fechar" method="POST" style="display:flex; gap:10px; flex-wrap:wrap;" onsubmit="return confirm('Tem certeza que deseja fechar este turno? Após encerrado, não será mais possível lançar ou excluir movimentações.');">
                     <input type="hidden" name="saldo_esperado" value="<%= saldoEsperado %>">
                     <input type="number" step="0.01" min="0" name="valor_fechamento" placeholder="Valor contado em caixa (R$)" required>
                     <button class="btn-fechar" type="submit">Fechar Turno</button>

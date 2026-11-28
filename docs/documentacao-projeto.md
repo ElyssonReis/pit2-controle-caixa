@@ -9,20 +9,22 @@
 ## 1. Visão Geral e Revisão de Escopo (Kaizen)
 Na etapa anterior (PIT I), foi definida a estrutura conceitual e a modelagem inicial orientada a objetos utilizando UML. Nesta etapa (PIT II), aplicando o princípio de melhoria contínua (*Kaizen*), o escopo foi refinado e direcionado para um MVP (Produto Mínimo Viável) funcional: um **Sistema Web de Controle de Turnos e Fechamento de Caixa**, voltado para pequenos comércios e postos de serviço, visando evitar divergências financeiras (quebra de caixa) e facilitar a conferência diária.
 
+Após a rodada de testes com 5 usuários (Situação-Problema 3), foram incorporadas melhorias de usabilidade (IHC) e prevenção de erros: estorno/exclusão de lançamentos incorretos em turnos abertos, confirmação modal antes do encerramento definitivo do caixa e exibição resumida do resultado financeiro no histórico.
+
 ---
 
 ## 2. Levantamento de Requisitos
 
 ### Requisitos Funcionais (RF)
-* **RF01 — Cadastro de Turno/Operador:** O sistema deve permitir iniciar um novo turno informando o nome do operador, a data e o valor inicial em caixa (fundo de troco).
-* **RF02 — Registro de Movimentações:** O sistema deve permitir lançar entradas (vendas em dinheiro, PIX, cartão) e saídas (sangrias, despesas) vinculadas ao turno ativo.
+* **RF01 — Cadastro e Gestão de Turno:** O sistema deve permitir iniciar um novo turno informando operador, data e fundo de troco, além de permitir excluir registros inválidos.
+* **RF02 — Registro e Estorno de Movimentações:** O sistema deve permitir lançar entradas e saídas vinculadas ao turno ativo, bem como excluir lançamentos incorretos enquanto o turno estiver aberto.
 * **RF03 — Cálculo Automático de Saldo:** O sistema deve calcular automaticamente o saldo esperado em caixa (`Valor Inicial + Entradas - Saídas`).
-* **RF04 — Fechamento e Conferência:** O sistema deve permitir encerrar o turno informando o valor físico contado, apontando imediatamente se o caixa fechou correto, com sobra ou com quebra (falta).
-* **RF05 — Histórico de Turnos:** O sistema deve listar todos os turnos registrados com seus respectivos status e saldos.
+* **RF04 — Fechamento e Conferência Segura:** O sistema deve solicitar confirmação antes de encerrar o turno e calcular imediatamente se o caixa fechou exato, com sobra ou com quebra (falta).
+* **RF05 — Histórico de Turnos:** O sistema deve listar todos os turnos registrados com seus respectivos status e resultado de conferência.
 
 ### Requisitos Não Funcionais (RNF)
 * **RNF01 — Arquitetura:** O sistema deve ser desenvolvido seguindo o padrão arquitetural **MVC (Model-View-Controller)**.
-* **RNF02 — Usabilidade (IHC):** Interface limpa, responsiva e intuitiva, com mensagens claras de confirmação e alerta de erro para campos obrigatórios.
+* **RNF02 — Usabilidade e Prevenção de Erros (IHC):** Interface limpa, responsiva e intuitiva, com mensagens claras de confirmação, alertas visuais e prevenção contra cliques acidentais em ações irreversíveis.
 * **RNF03 — Persistência de Dados:** Os dados devem ser armazenados em banco de dados relacional (SQLite) com integridade referencial.
 * **RNF04 — Disponibilidade:** A aplicação deve estar hospedada em nuvem para acesso via navegador web.
 
@@ -36,8 +38,8 @@ flowchart LR
     Operador((Operador de Caixa))
     
     subgraph Sistema de Controle de Caixa
-        UC1([Abrir Turno de Caixa])
-        UC2([Registrar Entrada / Saída])
+        UC1([Abrir / Excluir Turno])
+        UC2([Registrar / Estornar Movimentação])
         UC3([Consultar Saldo Parcial])
         UC4([Fechar e Conferir Caixa])
         UC5([Visualizar Histórico de Turnos])
@@ -62,6 +64,7 @@ classDiagram
         +float diferenca
         +string status
         +abrirTurno()
+        +excluirTurno()
         +fecharTurno()
         +calcularSaldoEsperado()
     }
@@ -74,6 +77,7 @@ classDiagram
         +float valor
         +string data_hora
         +registrarMovimentacao()
+        +excluirMovimentacao()
     }
 
     Turno "1" -- "0..*" Movimentacao : possui >

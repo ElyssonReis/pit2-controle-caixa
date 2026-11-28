@@ -10,8 +10,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-// Criação das tabelas conforme Projeto Físico
 db.serialize(() => {
+    db.run('PRAGMA foreign_keys = ON');
+
     db.run(`CREATE TABLE IF NOT EXISTS turnos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         operador TEXT NOT NULL,
